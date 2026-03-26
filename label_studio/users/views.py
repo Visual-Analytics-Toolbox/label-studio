@@ -1,5 +1,5 @@
-"""This file and its contents are licensed under the Apache License 2.0. Please see the included NOTICE for copyright information and LICENSE for a copy of the license."""
-
+"""This file and its contents are licensed under the Apache License 2.0. Please see the included NOTICE for copyright information and LICENSE for a copy of the license.
+"""
 import logging
 from urllib.parse import quote
 
@@ -104,6 +104,15 @@ def user_signup(request):
 def user_login(request):
     """Login page"""
     user = request.user
+    print("-----------------------")
+    print(request.META)
+    print("-----------------------")
+    # Automatically login with a predefined user
+    email = 'email@example.com'  # Replace with an email already in the database
+    user = auth.get_user_model().objects.get(email=email)
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    
+    
     next_page = request.GET.get('next')
 
     # checks if the URL is a safe redirection.
@@ -112,7 +121,7 @@ def user_login(request):
             next_page = reverse('main')
         else:
             next_page = reverse('projects:project-index')
-
+    
     login_form = load_func(settings.USER_LOGIN_FORM)
     form = login_form()
 
