@@ -104,9 +104,9 @@ def user_signup(request):
 def user_login(request):
     """Login page"""
     user = request.user
-    print("-----------------------")
-    print(request.META)
-    print("-----------------------")
+    logging.warning("-----------------------")
+    logging.warning(request.META)
+    logging.warning("-----------------------")
     # Automatically login with a predefined user
     email = 'email@example.com'  # Replace with an email already in the database
     user = auth.get_user_model().objects.get(email=email)
