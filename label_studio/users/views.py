@@ -108,11 +108,17 @@ def user_login(request):
     logger.warning(request.META)
     logger.warning("-----------------------")
     # Automatically login with a predefined user
-    email = 'email@example.com'  # Replace with an email already in the database
-    user = auth.get_user_model().objects.get(email=email)
-    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    
-    
+    email = request.META.get('HTTP_X_AUTH_REQUEST_EMAIL')
+
+    if email:
+        User = auth.get_user_model()
+        try:
+            user = User.objects.get(email=email)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            return redirect(reverse('projects:project-index'))
+        except User.DoesNotExist:
+            logger.error(f"User {email} authenticated via Keycloak but not found in Label Studio DB")
+
     next_page = request.GET.get('next')
 
     # checks if the URL is a safe redirection.
