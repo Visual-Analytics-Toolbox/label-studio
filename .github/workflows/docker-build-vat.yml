@@ -19,6 +19,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Prepare Repository Names
+      run: |
+        echo "REPO_LOWER=${GITHUB_REPOSITORY_OWNER_PART,,}" >> $GITHUB_ENV
+      env:
+        GITHUB_REPOSITORY_OWNER_PART: ${{ github.repository_owner }}
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
@@ -35,6 +41,6 @@ jobs:
         context: .
         file: Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:custom-auth
+        tags: ghcr.io/${{ env.REPO_LOWER }}/${{ env.IMAGE_NAME }}:custom-auth
         cache-from: type=gha
         cache-to: type=gha,mode=max
