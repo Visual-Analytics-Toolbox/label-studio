@@ -14,6 +14,7 @@ import { EmptyProjectsList, ProjectsList } from "./ProjectsList";
 import { useAbortController, useUpdatePageTitle } from "@humansignal/core";
 import "./Projects.prefix.css";
 
+
 const getCurrentPage = () => {
   const pageNumberFromURL = new URLSearchParams(location.search).get("page");
 
@@ -27,6 +28,7 @@ export const ProjectsPage = () => {
   const [networkState, setNetworkState] = React.useState(null);
   const [currentPage, setCurrentPage] = useState(getCurrentPage());
   const [totalItems, setTotalItems] = useState(1);
+  const [search, setSearch] = useState("");
   const setContextProps = useContextProps();
 
   useUpdatePageTitle("Projects");
@@ -38,12 +40,14 @@ export const ProjectsPage = () => {
 
   const closeModal = () => setModal(false);
 
-  const fetchProjects = async (page = currentPage, pageSize = defaultPageSize) => {
+  const fetchProjects = async (page = currentPage, pageSize = defaultPageSize, searchString = search) => {
     setNetworkState("loading");
     abortController.renew(); // Cancel any in flight requests
 
     const requestParams = { page, page_size: pageSize };
-
+    if (searchString) {
+      requestParams.title = searchString;
+    }
     requestParams.include = [
       "id",
       "title",
@@ -118,6 +122,23 @@ export const ProjectsPage = () => {
 
   return (
     <div className={cn("projects-page").toClassName()}>
+      <input
+          type="text"
+          placeholder="Search by title..."
+          value={search}
+          className={cn("projects-page").elem("search").toClassName()}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            if (e.target.value === "") fetchProjects(1, defaultPageSize, "");
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              setCurrentPage(1);
+              fetchProjects(1, defaultPageSize, search);
+            }
+          }}
+        />
+
       <Oneof value={networkState}>
         <div className={cn("projects-page").elem("loading").toClassName()} case="loading">
           <Spinner size={64} />
