@@ -19,6 +19,7 @@ from data_manager.functions import filters_ordering_selected_items_exist, get_pr
 from django.conf import settings
 from django.db import IntegrityError
 from django.db.models import F
+from django.db.models.functions import Lower
 from django.http import Http404
 from django.utils.decorators import method_decorator
 from django_filters import CharFilter, FilterSet
@@ -177,7 +178,7 @@ class ProjectListAPI(generics.ListCreateAPIView):
         fields = serializer.validated_data.get('include')
         filter = serializer.validated_data.get('filter')
         projects = Project.objects.filter(organization=self.request.user.active_organization).order_by(
-            F('pinned_at').desc(nulls_last=True), '-created_at'
+            Lower('title'),F('pinned_at').desc(nulls_last=True), '-created_at'
         )
         if filter in ['pinned_only', 'exclude_pinned']:
             projects = projects.filter(pinned_at__isnull=filter == 'exclude_pinned')
